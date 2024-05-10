@@ -1,9 +1,8 @@
 import tkinter
+import tksheet
 from tkinter import ttk
 from tkinter import messagebox
 import sqlite3
-
-
 
 #Button Functions
 def enter_data():
@@ -11,38 +10,37 @@ def enter_data():
     firstname = first_name_entry.get()
     lastname = last_name_entry.get()
     
-
     if firstname and lastname:
         gender = gender_box.get()
         fiftyfree = fifty_free_entry.get()
 
         print("First Name: ", firstname, "Last Name: ", lastname) 
         print("Gender: ", gender, "50Free: ", fiftyfree)
-            
+        
         conn = sqlite3.connect('data.db')
-        table_create_query = '''CREATE TABLE IF NOT EXISTS Student_Data
-            (firstname TEXT, lastname TEXT, gender TEXT, fiftyfree INT)
+        table = """ CREATE TABLE IF NOT EXISTS Student_Data (
+            firstname TEXT NOT NULL,
+            lastname TEXT NOT NULL,
+            gender TEXT,
+            fiftyfree INT
+                ); """
+        conn.execute(table)
+
+ 
+        print("Table is Ready")
+
+        #Insert Data
+        data_insert_querey = '''INSERT INTO Student_Data (firstname, lastname, gender, fiftyfree) VALUES 
+        (?,?,?,?)
         '''
-
-
-
-
+        data_insert_tuple = (firstname, lastname, gender, fiftyfree)
+        cursor = conn.cursor()
+        cursor.execute(data_insert_querey, data_insert_tuple)
+        conn.commit() 
         conn.close()
-
-
-
 
     else:
         tkinter.messagebox.showwarning(title="Error", message="First Name and Last Name are Required Fields")
-
-    
-
-
-
-
-
-
-
 
 #Root Window 
 window = tkinter.Tk()
@@ -55,7 +53,6 @@ frame.pack()
 #Frame within Frame within Window
 user_info_frame = tkinter.LabelFrame(frame, text = "User Information")
 user_info_frame.grid(row= 0, column= 0, padx= 20, pady= 10)
-
 
 #Name Info (full_name_label)
 first_name_label = tkinter.Label(user_info_frame, text="First Name: ")
